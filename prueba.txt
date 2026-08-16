@@ -1,0 +1,26 @@
+src/metar_taf_parser/
+├── __init__.py                       # API pública: Metar, Taf, parse_metar(), parse_taf()
+├── enums.py                          # CloudAmount, WindUnit, VisibilityUnit, PressureUnit,
+│                                      # WeatherIntensity, WeatherDescriptor, WeatherPhenomenon,
+│                                      # ChangeIndicator
+├── models.py                         # Wind, DirectionalVisibility, Visibility, CloudLayer,
+│                                      # VerticalVisibility, SkyCondition, PresentWeather,
+│                                      # WeatherConditions, Temperature, Pressure,
+│                                      # Metar, TafChangeGroup, Taf
+├── exceptions.py                     # ParseError, UnknownTokenError, InvalidReportError
+├── tokenizer.py                      # Tokenizer
+├── groups/
+│   ├── __init__.py
+│   ├── base.py                       # GroupParser (Protocol)
+│   ├── wind.py                       # WindParser
+│   ├── visibility.py                 # VisibilityParser
+│   ├── clouds.py                     # CloudParser
+│   ├── vertical_visibility.py        # VerticalVisibilityParser
+│   ├── temperature.py                # TemperatureParser
+│   ├── pressure.py                   # PressureParser
+│   └── weather_phenomenon.py         # WeatherPhenomenonParser
+└── parsers/
+    ├── __init__.py
+    ├── base.py                       # AbstractReportParser
+    ├── metar.py                      # MetarParser
+    └── taf.py                        # TafParser (esqueleto — implementación en sprint 2)
