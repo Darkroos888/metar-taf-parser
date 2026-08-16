@@ -27,8 +27,8 @@ dev = [
 ]
 
 [project.urls]
-Homepage = "https://github.com/<tu-usuario>/metar-taf-parser"
-Issues = "https://github.com/<tu-usuario>/metar-taf-parser/issues"
+Homepage = "https://github.com/Darkroos888/metar-taf-parser.git"
+Issues = "https://github.com/Darkroos888/metar-taf-parser.git"
 
 [build-system]
 requires = ["hatchling"]
