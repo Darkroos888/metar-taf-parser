@@ -3,7 +3,7 @@
 A Python library for parsing METAR and TAF aviation weather reports into
 typed, immutable Python objects.
 
-[![CI](https://github.com/<username>/metar-taf-parser/actions/workflows/ci.yml/badge.svg)](https://github.com/<username>/metar-taf-parser/actions/workflows/ci.yml)
+[![CI](https://github.com/Darkroos888/metar-taf-parser/actions/workflows/ci.yml/badge.svg)](https://github.com/Darkroos888/metar-taf-parser/actions/workflows/ci.yml)
 ![Python](https://img.shields.io/badge/python-3.10%2B-blue)
 ![License](https://img.shields.io/badge/license-MIT-green)
 
@@ -30,7 +30,7 @@ pip install metar-taf-parser
 For now, install directly from GitHub:
 
 ```bash
-pip install git+https://github.com/<username>/metar-taf-parser.git
+pip install git+https://github.com/Darkroos888/metar-taf-parser.git
 ```
 
 ## Usage
@@ -58,7 +58,7 @@ metar.pressure.value             # 1015.0
 Requires Python 3.10+ and [`uv`](https://docs.astral.sh/uv/).
 
 ```bash
-git clone https://github.com/<username>/metar-taf-parser.git
+git clone https://github.com/Darkroos888/metar-taf-parser.git
 cd metar-taf-parser
 uv sync --extra dev
 ```
