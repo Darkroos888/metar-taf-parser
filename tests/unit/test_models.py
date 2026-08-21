@@ -23,8 +23,8 @@ from metar_taf_parser.models import (
     CloudLayer,
     DirectionalVisibility,
     Metar,
-    Pressure,
     PresentWeather,
+    Pressure,
     SkyCondition,
     Taf,
     TafChangeGroup,
@@ -39,7 +39,9 @@ _SAMPLE_WIND = Wind(direction=240, speed=10, unit=WindUnit.KT)
 _SAMPLE_VISIBILITY = Visibility(distance=9999, unit=VisibilityUnit.METERS)
 _SAMPLE_SKY = SkyCondition(clouds=(CloudLayer(amount=CloudAmount.FEW, height_ft=2000),))
 _SAMPLE_CONDITIONS = WeatherConditions(
-    wind=_SAMPLE_WIND, visibility=_SAMPLE_VISIBILITY, sky=_SAMPLE_SKY,
+    wind=_SAMPLE_WIND,
+    visibility=_SAMPLE_VISIBILITY,
+    sky=_SAMPLE_SKY,
 )
 _SAMPLE_TEMPERATURE = Temperature(air=18, dew_point=12)
 _SAMPLE_PRESSURE = Pressure(value=1015.0, unit=PressureUnit.HPA)
@@ -47,47 +49,51 @@ _SAMPLE_TIME = datetime(2026, 8, 16, 12, 0)
 
 
 FROZEN_VALUE_OBJECTS = [
-    (VerticalVisibility, dict(height_ft=300)),
-    (Wind, dict(direction=240, speed=10, unit=WindUnit.KT)),
-    (DirectionalVisibility, dict(distance=5000, direction="NE")),
-    (Visibility, dict(distance=9999, unit=VisibilityUnit.METERS)),
-    (CloudLayer, dict(amount=CloudAmount.FEW, height_ft=2000)),
-    (SkyCondition, dict(clouds=(CloudLayer(amount=CloudAmount.FEW, height_ft=2000),))),
+    (VerticalVisibility, {"height_ft": 300}),
+    (Wind, {"direction": 240, "speed": 10, "unit": WindUnit.KT}),
+    (DirectionalVisibility, {"distance": 5000, "direction": "NE"}),
+    (Visibility, {"distance": 9999, "unit": VisibilityUnit.METERS}),
+    (CloudLayer, {"amount": CloudAmount.FEW, "height_ft": 2000}),
+    (SkyCondition, {"clouds": (CloudLayer(amount=CloudAmount.FEW, height_ft=2000),)}),
     (
         PresentWeather,
-        dict(intensity=WeatherIntensity.MODERATE, phenomena=(WeatherPhenomenon.RAIN,)),
+        {"intensity": WeatherIntensity.MODERATE, "phenomena": (WeatherPhenomenon.RAIN,)},
     ),
-    (Temperature, dict(air=18, dew_point=12)),
-    (Pressure, dict(value=1015.0, unit=PressureUnit.HPA)),
+    (Temperature, {"air": 18, "dew_point": 12}),
+    (Pressure, {"value": 1015.0, "unit": PressureUnit.HPA}),
     (
         WeatherConditions,
-        dict(wind=_SAMPLE_WIND, visibility=_SAMPLE_VISIBILITY, sky=_SAMPLE_SKY),
+        {"wind": _SAMPLE_WIND, "visibility": _SAMPLE_VISIBILITY, "sky": _SAMPLE_SKY},
     ),
     (
         Metar,
-        dict(
-            raw_text="METAR LEMD 161200Z 24010KT 9999 FEW020 18/12 Q1015",
-            station_id="LEMD",
-            observation_time=_SAMPLE_TIME,
-            conditions=_SAMPLE_CONDITIONS,
-            temperature=_SAMPLE_TEMPERATURE,
-            pressure=_SAMPLE_PRESSURE,
-        ),
+        {
+            "raw_text": "METAR LEMD 161200Z 24010KT 9999 FEW020 18/12 Q1015",
+            "station_id": "LEMD",
+            "observation_time": _SAMPLE_TIME,
+            "conditions": _SAMPLE_CONDITIONS,
+            "temperature": _SAMPLE_TEMPERATURE,
+            "pressure": _SAMPLE_PRESSURE,
+        },
     ),
     (
         TafChangeGroup,
-        dict(indicator=ChangeIndicator.FM, valid_from=_SAMPLE_TIME, conditions=_SAMPLE_CONDITIONS),
+        {
+            "indicator": ChangeIndicator.FM,
+            "valid_from": _SAMPLE_TIME,
+            "conditions": _SAMPLE_CONDITIONS,
+        },
     ),
     (
         Taf,
-        dict(
-            raw_text="TAF LEMD 161100Z 1612/1712 24010KT 9999 FEW020",
-            station_id="LEMD",
-            issue_time=_SAMPLE_TIME,
-            valid_from=_SAMPLE_TIME,
-            valid_to=_SAMPLE_TIME,
-            base_conditions=_SAMPLE_CONDITIONS,
-        ),
+        {
+            "raw_text": "TAF LEMD 161100Z 1612/1712 24010KT 9999 FEW020",
+            "station_id": "LEMD",
+            "issue_time": _SAMPLE_TIME,
+            "valid_from": _SAMPLE_TIME,
+            "valid_to": _SAMPLE_TIME,
+            "base_conditions": _SAMPLE_CONDITIONS,
+        },
     ),
 ]
 
@@ -169,7 +175,9 @@ class TestDomainModelDefaults:
     def test_taf_change_group_defaults(self):
         """TafChangeGroup sin fin de validez ni probabilidad por defecto."""
         change = TafChangeGroup(
-            indicator=ChangeIndicator.FM, valid_from=_SAMPLE_TIME, conditions=_SAMPLE_CONDITIONS,
+            indicator=ChangeIndicator.FM,
+            valid_from=_SAMPLE_TIME,
+            conditions=_SAMPLE_CONDITIONS,
         )
         assert change.valid_to is None
         assert change.probability is None
