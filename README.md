@@ -75,6 +75,18 @@ Run the linter:
 uv run ruff check .
 ```
 
+Auto-fix what ruff can fix on its own (import order, safe rewrites):
+
+```bash
+uv run ruff check --fix .
+```
+
+Run everything CI runs, in one line:
+
+```bash
+uv run ruff check . && uv run pytest
+```
+
 Build the documentation:
 
 ```bash
