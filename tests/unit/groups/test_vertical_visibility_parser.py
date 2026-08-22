@@ -48,6 +48,7 @@ class TestVerticalVisibilityParserMatches:
         "VVABC",  # non-numeric
         "VV",  # missing digits entirely
         "",
+        "",
     ]
 
     @pytest.mark.parametrize("token", VALID_TOKENS)
