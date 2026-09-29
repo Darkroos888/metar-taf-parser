@@ -92,6 +92,7 @@ class TestVisibilityParserRejectsDirectionalOnlyTokens:
         """These only make sense combined with a preceding main visibility token."""
         assert parser.matches(token) is False
 
+
 class TestVisibilityParserRejectsRWYOnlyTokens:
     """A lone direction-qualified variation token should not match on its own."""
 
@@ -104,7 +105,7 @@ class TestVisibilityParserRejectsRWYOnlyTokens:
         "R26/1100FT",
         "R10L/M0600FT",
         "R03/0900FT",
-        "R22R/P6000FT"
+        "R22R/P6000FT",
         "R16C/0600V1000FT",
     ]
 
@@ -112,7 +113,6 @@ class TestVisibilityParserRejectsRWYOnlyTokens:
     def test_rejects_rwy_only_tokens(self, parser, token):
         """These only make sense combined with a preceding main visibility token."""
         assert parser.matches(token) is False
-
 
 
 class TestVisibilityParserRejectsNonVisibilityTokens:
@@ -125,7 +125,7 @@ class TestVisibilityParserRejectsNonVisibilityTokens:
         "Q1015",  # pressure
         "18/12",  # temperature
         "CAVOK",  # ceiling and visibility OK
-        "AUTO", # automated message
+        "AUTO",  # automated message
         "LEMD",  # station id
         "999",  # meters, too few digits
         "99999",  # meters, too many digits

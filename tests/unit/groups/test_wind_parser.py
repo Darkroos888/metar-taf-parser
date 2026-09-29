@@ -36,10 +36,10 @@ class TestWindParserMatches:
         "VRB02G08KT",
         "27015MPS",
         "18008KMH",
-        "12015G25KMH"
+        "12015G25KMH",
         "36099KT",
         "09005G12MPS",
-        "100V180", # wind may vary, so a group to indicate the oscillations is added
+        "100V180",  # wind may vary, so a group to indicate the oscillations is added
     ]
 
     NON_WIND_TOKENS = [
@@ -53,12 +53,12 @@ class TestWindParserMatches:
         "M02/M08",  # temperature/dew point below zero
         "+TSRA",  # present weather
         "LEMD",  # station id
-        "CAVOK", # ceiling and visibility OK
+        "CAVOK",  # ceiling and visibility OK
         "161200Z",  # observation time
-        "AUTO", # report auto-provided
-        "COR", # correction
-        "100V", # second direction missing
-        "V200", # first direction missing
+        "AUTO",  # report auto-provided
+        "COR",  # correction
+        "100V",  # second direction missing
+        "V200",  # first direction missing
         "2401KT",  # direction/speed with only 2 digits
         "24010",  # missing unit
         "ABCDEKT",  # non-numeric direction/speed
