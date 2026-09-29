@@ -1,5 +1,7 @@
 """TAF report parser."""
 
+from datetime import datetime
+
 from metar_taf_parser.groups.clouds import CloudParser
 from metar_taf_parser.groups.pressure import PressureParser
 from metar_taf_parser.groups.temperature import TemperatureParser
@@ -28,6 +30,6 @@ class TafParser(AbstractReportParser):
             ]
         )
 
-    def _assemble(self, raw: str, results: list[object]) -> Taf:
+    def _assemble(self, raw: str, results: list[object], reference: datetime) -> Taf:
         """Build a `Taf` from the dispatched results. Logic pending."""
         raise NotImplementedError
