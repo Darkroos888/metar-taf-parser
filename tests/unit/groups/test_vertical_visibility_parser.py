@@ -31,6 +31,7 @@ class TestVerticalVisibilityParserMatches:
         "VV000",
         "VV020",
         "VV100",
+        "VV///",
     ]
 
     NON_VERTICAL_VISIBILITY_TOKENS = [
@@ -41,13 +42,13 @@ class TestVerticalVisibilityParserMatches:
         "VRB03KT",  # wind, starts with V but not VV
         "Q1015",  # pressure
         "18/12",  # temperature/dew point
-        "CAVOK",
+        "CAVOK", # ceiling and visibility OK
+        "AUTO", # automated message
         "LEMD",  # station id
         "VV03",  # only 2 digits
         "VV0003",  # 4 digits
         "VVABC",  # non-numeric
         "VV",  # missing digits entirely
-        "",
         "",
     ]
 
