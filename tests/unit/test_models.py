@@ -140,6 +140,16 @@ class TestDomainModelDefaults:
         visibility = Visibility(distance=9999, unit=VisibilityUnit.METERS)
         assert visibility.directional == ()
 
+    def test_visibility_accepts_fractional_statute_miles(self):
+        """Visibility admite distancias fraccionarias (p. ej. `1/2SM` -> 0.5)."""
+        visibility = Visibility(distance=0.5, unit=VisibilityUnit.STATUTE_MILES)
+        assert visibility.distance == 0.5
+
+    def test_directional_visibility_accepts_fractional_distance(self):
+        """DirectionalVisibility admite distancias fraccionarias."""
+        directional = DirectionalVisibility(distance=1.5, direction="NE")
+        assert directional.distance == 1.5
+
     def test_cloud_layer_defaults_to_no_convective_type(self):
         """CloudLayer sin tipo convectivo por defecto."""
         layer = CloudLayer(amount=CloudAmount.FEW, height_ft=2000)
