@@ -39,15 +39,19 @@ class Wind:
 class DirectionalVisibility:
     """Visibility reported toward a specific compass direction."""
 
-    distance: int
+    distance: float
     direction: str
 
 
 @dataclass(frozen=True)
 class Visibility:
-    """Prevailing visibility, with optional directional variations."""
+    """Prevailing visibility, with optional directional variations.
 
-    distance: int
+    `distance` is a float so fractional statute-mile visibilities (e.g. `1/2SM`
+    -> `0.5`) are representable alongside whole-unit meter/SM values.
+    """
+
+    distance: float
     unit: VisibilityUnit
     directional: tuple[DirectionalVisibility, ...] = ()
 
