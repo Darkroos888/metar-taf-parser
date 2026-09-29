@@ -32,6 +32,7 @@ class TestTemperatureParserMatches:
         "05/00",
         "00/00",
         "M00/M00",
+        "20/",
     ]
 
     NON_TEMPERATURE_TOKENS = [
@@ -40,9 +41,9 @@ class TestTemperatureParserMatches:
         "FEW020",  # cloud layer
         "VV003",  # vertical visibility
         "Q1015",  # pressure
-        "CAVOK",
+        "CAVOK", # ceiling and visibility OK
+        "AUTO", # automated message
         "LEMD",  # station id
-        "18/",  # missing dew point
         "/12",  # missing air temperature
         "1812",  # missing slash
         "ABC/12",  # non-numeric air temperature
