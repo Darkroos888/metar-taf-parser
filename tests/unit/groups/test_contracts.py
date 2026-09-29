@@ -1,7 +1,13 @@
-"""Structural contract shared by every GroupParser implementation."""
+"""Contract shared by every GroupParser implementation.
+
+Besides the Protocol shape, every parser agrees on one error rule: `parse()`
+on a token its own `matches()` rejects raises `ParseError` (or a subclass),
+never a stray `AttributeError`/`ValueError` from the regex internals.
+"""
 
 import pytest
 
+from metar_taf_parser.exceptions import ParseError
 from metar_taf_parser.groups.base import GroupParser
 from metar_taf_parser.groups.clouds import CloudParser
 from metar_taf_parser.groups.pressure import PressureParser
@@ -21,6 +27,9 @@ ALL_GROUP_PARSERS = [
     WeatherPhenomenonParser,
 ]
 
+# Tokens no group parser accepts: empty, a station id, and plain garbage.
+UNPARSEABLE_TOKENS = ["", "LEMD", "#@!"]
+
 
 @pytest.mark.parametrize("parser_cls", ALL_GROUP_PARSERS)
 class TestGroupParserContract:
@@ -29,3 +38,9 @@ class TestGroupParserContract:
     def test_satisfies_group_parser_protocol(self, parser_cls):
         """The class implements `matches()` and `parse()` with the correct signature."""
         assert isinstance(parser_cls(), GroupParser)
+
+    @pytest.mark.parametrize("token", UNPARSEABLE_TOKENS)
+    def test_parse_raises_parse_error_on_unmatched_token(self, parser_cls, token):
+        """`parse()` on a token that doesn't match raises ParseError."""
+        with pytest.raises(ParseError):
+            parser_cls().parse(token)
