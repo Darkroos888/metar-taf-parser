@@ -62,7 +62,9 @@ class TestVisibilityParserMatchesStatuteMiles:
 
     VALID_TOKENS = [
         "10SM",
+        "P6SM",
         "1SM",
+        "1 1/2SM",
         "1/2SM",
         "3/4SM",
         "1/4SM",
@@ -90,6 +92,28 @@ class TestVisibilityParserRejectsDirectionalOnlyTokens:
         """These only make sense combined with a preceding main visibility token."""
         assert parser.matches(token) is False
 
+class TestVisibilityParserRejectsRWYOnlyTokens:
+    """A lone direction-qualified variation token should not match on its own."""
+
+    RWY_ONLY_TOKENS = [
+        "R27/0900U",
+        "R17R/1300N",
+        "R03L/0800D",
+        "R12C/P2000",
+        "R35/M0050",
+        "R26/1100FT",
+        "R10L/M0600FT",
+        "R03/0900FT",
+        "R22R/P6000FT"
+        "R16C/0600V1000FT",
+    ]
+
+    @pytest.mark.parametrize("token", RWY_ONLY_TOKENS)
+    def test_rejects_rwy_only_tokens(self, parser, token):
+        """These only make sense combined with a preceding main visibility token."""
+        assert parser.matches(token) is False
+
+
 
 class TestVisibilityParserRejectsNonVisibilityTokens:
     """`matches()` should reject tokens from other groups and malformed visibility."""
@@ -100,7 +124,8 @@ class TestVisibilityParserRejectsNonVisibilityTokens:
         "VV003",  # vertical visibility
         "Q1015",  # pressure
         "18/12",  # temperature
-        "CAVOK",  # handled separately by the dispatcher
+        "CAVOK",  # ceiling and visibility OK
+        "AUTO", # automated message
         "LEMD",  # station id
         "999",  # meters, too few digits
         "99999",  # meters, too many digits

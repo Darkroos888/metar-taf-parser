@@ -39,7 +39,8 @@ class TestPressureParserMatches:
         "FEW020",  # cloud layer
         "VV003",  # vertical visibility
         "18/12",  # temperature/dew point
-        "CAVOK",
+        "CAVOK", # ceiling and visibility OK
+        "AUTO", # automated message
         "LEMD",  # station id
         "Q101",  # only 3 digits
         "Q10155",  # 5 digits
