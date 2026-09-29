@@ -18,9 +18,13 @@ from metar_taf_parser.enums import (
 
 @dataclass(frozen=True)
 class VerticalVisibility:
-    """Vertical visibility reported when the sky is obscured (e.g. VV003)."""
+    """Vertical visibility reported when the sky is obscured (e.g. VV003).
 
-    height_ft: int
+    `height_ft` is None when the height is reported but not measurable
+    (`VV///`, typical of automated stations).
+    """
+
+    height_ft: int | None
 
 
 @dataclass(frozen=True)

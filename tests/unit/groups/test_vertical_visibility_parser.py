@@ -2,7 +2,8 @@
 """Behavioral tests for `VerticalVisibilityParser` — the `VVxxx` METAR/TAF group.
 
 Grammar covered: `VV` followed by exactly 3 digits, the vertical visibility
-in hundreds of feet (e.g. `VV003` -> 300 ft). Reported when the sky is
+in hundreds of feet (e.g. `VV003` -> 300 ft), or by `///` when the height
+can't be measured (automated stations) -> `height_ft=None`. Reported when the sky is
 obscured (fog, heavy precipitation) and no distinct cloud layers can be
 identified — it's mutually exclusive with the cloud groups in the real
 grammar (see CONTEXT.md's domain model notes on `SkyCondition`).
@@ -42,13 +43,15 @@ class TestVerticalVisibilityParserMatches:
         "VRB03KT",  # wind, starts with V but not VV
         "Q1015",  # pressure
         "18/12",  # temperature/dew point
-        "CAVOK", # ceiling and visibility OK
-        "AUTO", # automated message
+        "CAVOK",  # ceiling and visibility OK
+        "AUTO",  # automated message
         "LEMD",  # station id
         "VV03",  # only 2 digits
         "VV0003",  # 4 digits
         "VVABC",  # non-numeric
         "VV",  # missing digits entirely
+        "VV//",  # only 2 slashes
+        "VV0//",  # digits and slashes mixed
         "",
     ]
 
@@ -85,3 +88,11 @@ class TestVerticalVisibilityParserParsesZeroHeight:
     def test_parses_zero_height(self, parser):
         """`VV000` should parse to `height_ft=0`, not be rejected or raise."""
         assert parser.parse("VV000") == VerticalVisibility(height_ft=0)
+
+
+class TestVerticalVisibilityParserParsesUnknownHeight:
+    """`VV///`: the sky is obscured but the height can't be measured."""
+
+    def test_parses_unknown_height_as_none(self, parser):
+        """`VV///` should parse to `height_ft=None`, not 0 and not an error."""
+        assert parser.parse("VV///") == VerticalVisibility(height_ft=None)
