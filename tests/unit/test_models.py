@@ -151,6 +151,14 @@ class TestDomainModelDefaults:
         assert sky.clouds == ()
         assert sky.vertical_visibility is None
 
+    def test_present_weather_defaults_to_no_descriptors(self):
+        """PresentWeather sin descriptores por defecto (p. ej. `-RA`)."""
+        weather = PresentWeather(
+            intensity=WeatherIntensity.LIGHT,
+            phenomena=(WeatherPhenomenon.RAIN,),
+        )
+        assert weather.descriptors == ()
+
     def test_weather_conditions_defaults(self):
         """WeatherConditions sin CAVOK, visibilidad, cielo ni fenómenos por defecto."""
         conditions = WeatherConditions(wind=_SAMPLE_WIND)
