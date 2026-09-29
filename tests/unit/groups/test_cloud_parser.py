@@ -46,7 +46,8 @@ class TestCloudParserMatches:
         "24010KT",  # wind
         "Q1015",  # pressure
         "18/12",  # temperature/dew point
-        "CAVOK",
+        "CAVOK", # ceiling and visibility OK
+        "AUTO", # automated message
         "LEMD",  # station id
         "FEW02",  # only 2 height digits
         "FEW0200",  # 4 height digits
