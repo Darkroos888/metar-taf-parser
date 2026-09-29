@@ -1,0 +1,157 @@
+"""Behavioral tests for `WindParser` — the surface wind METAR group.
+
+Grammar covered: direction, speed, gust, unit (`KT`/`MPS`/`KMH`), variable
+direction (`VRB`) and calm wind (`00000KT`). The two-token variable-range
+construct (e.g. `24010KT 210V270`) is intentionally out of scope here —
+`WindParser.parse()` only ever sees one token, so that relationship belongs
+to `AbstractReportParser._dispatch()` (see CONTEXT.md's "Known gap" note,
+planned for `feat/report-parser-orchestration`). `variable_range` is
+therefore expected to always be `None` coming out of this parser.
+
+Each class below isolates one piece of the grammar so a single failing rule
+doesn't hide behind unrelated ones.
+"""
+
+import pytest
+
+from metar_taf_parser.enums import WindUnit
+from metar_taf_parser.groups.wind import WindParser
+from metar_taf_parser.models import Wind
+
+
+@pytest.fixture
+def parser():
+    """Provides a fresh instance of WindParser for each test."""
+    return WindParser()
+
+
+class TestWindParserMatches:
+    """`matches()` should accept valid wind tokens and reject all others."""
+
+    VALID_TOKENS = [
+        "24010KT",
+        "24010G20KT",
+        "00000KT",
+        "VRB03KT",
+        "VRB02G08KT",
+        "27015G25MPS",
+        "18008KMH",
+        "36099KT",
+        "09005G12MPS",
+    ]
+
+    NON_WIND_TOKENS = [
+        "9999",  # visibility
+        "2000NE",  # directional visibility
+        "FEW020",  # cloud layer
+        "VV003",  # vertical visibility
+        "Q1015",  # pressure (hPa)
+        "A2992",  # pressure (inHg)
+        "18/12",  # temperature/dew point
+        "M02/M08",  # temperature/dew point below zero
+        "+TSRA",  # present weather
+        "LEMD",  # station id
+        "CAVOK",
+        "161200Z",  # observation time
+        "AUTO",
+        "COR",
+        "2401KT",  # direction/speed with only 2 digits
+        "24010",  # missing unit
+        "ABCDEKT",  # non-numeric direction/speed
+        "24010GKT",  # G with no gust value
+        "",
+    ]
+
+    @pytest.mark.parametrize("token", VALID_TOKENS)
+    def test_accepts_valid_wind_tokens(self, parser, token):
+        """Valid tokens matching dddffGffUU, VRB, or calm formats should match."""
+        assert parser.matches(token) is True
+
+    @pytest.mark.parametrize("token", NON_WIND_TOKENS)
+    def test_rejects_non_wind_tokens(self, parser, token):
+        """Tokens from other groups or invalid wind formats should not match."""
+        assert parser.matches(token) is False
+
+
+class TestWindParserParsesDirectionAndSpeed:
+    """Base case: direction + speed, without gusts."""
+
+    CASES = [
+        ("24010KT", Wind(direction=240, speed=10, unit=WindUnit.KT)),
+        ("09005KT", Wind(direction=90, speed=5, unit=WindUnit.KT)),
+        ("36020KT", Wind(direction=360, speed=20, unit=WindUnit.KT)),
+        ("01003KT", Wind(direction=10, speed=3, unit=WindUnit.KT)),
+    ]
+
+    @pytest.mark.parametrize("token, expected", CASES)
+    def test_parses_direction_and_speed(self, parser, token, expected):
+        """Direction and speed should be correctly extracted without gust or variability."""
+        wind = parser.parse(token)
+        assert wind == expected
+        assert wind.gust is None
+        assert wind.variable is False
+        assert wind.variable_range is None
+
+
+class TestWindParserParsesGust:
+    """Optional gust component (`Gff`)."""
+
+    CASES = [
+        ("24010G20KT", Wind(direction=240, speed=10, gust=20, unit=WindUnit.KT)),
+        ("18025G35KT", Wind(direction=180, speed=25, gust=35, unit=WindUnit.KT)),
+        ("09008G15MPS", Wind(direction=90, speed=8, gust=15, unit=WindUnit.MPS)),
+    ]
+
+    @pytest.mark.parametrize("token, expected", CASES)
+    def test_parses_gust(self, parser, token, expected):
+        """When the token includes `Gff`, `gust` should reflect that value."""
+        assert parser.parse(token) == expected
+
+    def test_gust_defaults_to_none_when_absent(self, parser):
+        """Without `Gff` in the token, `gust` should be None."""
+        assert parser.parse("24010KT").gust is None
+
+
+class TestWindParserParsesUnit:
+    """Speed units: KT, MPS, KMH."""
+
+    CASES = [
+        ("24010KT", WindUnit.KT),
+        ("24010MPS", WindUnit.MPS),
+        ("24010KMH", WindUnit.KMH),
+    ]
+
+    @pytest.mark.parametrize("token, expected_unit", CASES)
+    def test_parses_unit(self, parser, token, expected_unit):
+        """The suffix unit in the token should map to the corresponding `WindUnit`."""
+        assert parser.parse(token).unit == expected_unit
+
+
+class TestWindParserParsesVariableDirection:
+    """Single-token variable direction (`VRB`), without an associated range."""
+
+    CASES = [
+        ("VRB03KT", Wind(direction=None, speed=3, unit=WindUnit.KT, variable=True)),
+        (
+            "VRB02G08KT",
+            Wind(direction=None, speed=2, gust=8, unit=WindUnit.KT, variable=True),
+        ),
+    ]
+
+    @pytest.mark.parametrize("token, expected", CASES)
+    def test_parses_variable_direction(self, parser, token, expected):
+        """`VRB` should result in direction=None and variable=True."""
+        wind = parser.parse(token)
+        assert wind == expected
+        assert wind.variable_range is None
+
+
+class TestWindParserParsesCalmWind:
+    """Calm wind (`00000KT`)."""
+
+    def test_parses_calm_wind(self, parser):
+        """Calm wind should set direction and speed to 0, without gust or variability."""
+        wind = parser.parse("00000KT")
+        assert wind == Wind(direction=0, speed=0, unit=WindUnit.KT)
+        assert wind.gust is None
+        assert wind.variable is False
