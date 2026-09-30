@@ -15,8 +15,8 @@ live in `MetarParser` rather than in any single `GroupParser`:
 - `CAVOK` sets `cavok=True` and leaves `visibility` and `sky` as `None`.
 - Every cloud layer ends up, in order, in a single `SkyCondition`; `VVxxx`
   goes into that same `SkyCondition.vertical_visibility`.
-- Two-token groups are joined: `24010KT 210V270` fills `Wind.variable_range`,
-  and `1 1/2SM` becomes one `Visibility` of 1.5 SM.
+- `210V270` (a `WindVariation`) fills the preceding `Wind.variable_range`,
+  and the split tokens `1` + `1/2SM` become one `Visibility` of 1.5 SM.
 - `raw_text` is the input exactly as given.
 """
 

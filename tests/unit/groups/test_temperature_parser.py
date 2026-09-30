@@ -41,8 +41,8 @@ class TestTemperatureParserMatches:
         "FEW020",  # cloud layer
         "VV003",  # vertical visibility
         "Q1015",  # pressure
-        "CAVOK", # ceiling and visibility OK
-        "AUTO", # automated message
+        "CAVOK",  # ceiling and visibility OK
+        "AUTO",  # automated message
         "LEMD",  # station id
         "/12",  # missing air temperature
         "1812",  # missing slash

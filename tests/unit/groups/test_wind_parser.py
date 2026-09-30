@@ -1,12 +1,13 @@
 """Behavioral tests for `WindParser` — the surface wind METAR group.
 
 Grammar covered: direction, speed, gust, unit (`KT`/`MPS`/`KMH`), variable
-direction (`VRB`) and calm wind (`00000KT`). The two-token variable-range
-construct (e.g. `24010KT 210V270`) is intentionally out of scope here —
-`WindParser.parse()` only ever sees one token, so that relationship belongs
-to `AbstractReportParser._dispatch()` (see CONTEXT.md's "Known gap" note,
-planned for `feat/report-parser-orchestration`). `variable_range` is
-therefore expected to always be `None` coming out of this parser.
+direction (`VRB`), calm wind (`00000KT`) and the variable direction range
+group (`dddVddd`, e.g. `100V180`).
+
+The range group is its own token (`24010KT 210V270`), so `parse()` returns
+it as a separate `WindVariation`; folding it into the preceding
+`Wind.variable_range` is the report parser's job (`_assemble()`). A `Wind`
+coming out of this parser therefore always has `variable_range=None`.
 
 Each class below isolates one piece of the grammar so a single failing rule
 doesn't hide behind unrelated ones.
@@ -16,7 +17,7 @@ import pytest
 
 from metar_taf_parser.enums import WindUnit
 from metar_taf_parser.groups.wind import WindParser
-from metar_taf_parser.models import Wind
+from metar_taf_parser.models import Wind, WindVariation
 
 
 @pytest.fixture
@@ -59,6 +60,9 @@ class TestWindParserMatches:
         "COR",  # correction
         "100V",  # second direction missing
         "V200",  # first direction missing
+        "10V180",  # first direction with only 2 digits
+        "100V1800",  # second direction with 4 digits
+        "100V180KT",  # range group with a unit suffix
         "2401KT",  # direction/speed with only 2 digits
         "24010",  # missing unit
         "ABCDEKT",  # non-numeric direction/speed
@@ -159,3 +163,18 @@ class TestWindParserParsesCalmWind:
         assert wind == Wind(direction=0, speed=0, unit=WindUnit.KT)
         assert wind.gust is None
         assert wind.variable is False
+
+
+class TestWindParserParsesVariationRange:
+    """Variable direction range group (`dddVddd`), returned as a `WindVariation`."""
+
+    CASES = [
+        ("100V180", WindVariation(from_direction=100, to_direction=180)),
+        ("210V270", WindVariation(from_direction=210, to_direction=270)),
+        ("350V030", WindVariation(from_direction=350, to_direction=30)),  # crosses north
+    ]
+
+    @pytest.mark.parametrize("token, expected", CASES)
+    def test_parses_variation_range(self, parser, token, expected):
+        """Both 3-digit directions are read in degrees, in token order."""
+        assert parser.parse(token) == expected
