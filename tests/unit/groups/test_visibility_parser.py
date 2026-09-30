@@ -8,20 +8,19 @@ Grammar covered:
   literally as `9999` rather than normalizing it, matching the raw-mapping
   approach used elsewhere (e.g. `TemperatureParser`).
 - US format (statute miles): `TTSM` (whole number, e.g. `10SM`), `N/DSM`
-  (simple fraction, e.g. `1/2SM`), and `MN/DSM` (`M`-prefixed, meaning "less
-  than", e.g. `M1/4SM`). The `M` prefix only affects `matches()` — the
-  domain model has no "less than" comparator yet, so `parse()` maps it to
-  the same numeric value as the unprefixed fraction.
+  (simple fraction, e.g. `1/2SM`), `W N/DSM` (mixed number, e.g. `1 1/2SM`),
+  and an optional `M` ("less than", e.g. `M1/4SM`) or `P` ("more than", e.g.
+  `P6SM`) prefix. The prefix only affects `matches()` — the domain model has
+  no comparator yet, so `parse()` keeps only the numeric value.
 
 Known gap, intentionally deferred (same shape as the wind `210V270` case
-documented in `CLAUDE.md`): two-token constructs can't be resolved by
-`VisibilityParser.parse()`, since it only ever sees one token at a time.
-That includes directional variation (`0800 1200NW` — main visibility plus a
-direction-qualified variation token) and mixed statute-mile fractions
-(`1 1/2SM` — a whole-number token followed by a fraction+SM token). Both
-belong in `AbstractReportParser._dispatch()`, not here. This parser treats a
-lone directional-variation token (e.g. `1200NW`) as non-matching, since
-parsing it standalone would misrepresent it as a primary `Visibility`.
+documented in `CLAUDE.md`): the tokenizer splits a mixed statute-mile
+number (`1 1/2SM`) into two tokens, `1` and `1/2SM`. Rejoining them is
+`AbstractReportParser._dispatch()`'s job; this parser accepts the rejoined
+`1 1/2SM` form, but never the bare whole number `1`. Directional variation
+(`0800 1200NW`) is also a two-token construct left to `_dispatch()`: a lone
+directional-variation token (e.g. `1200NW`) is non-matching, since parsing it
+standalone would misrepresent it as a primary `Visibility`.
 
 Each class below isolates one piece of the grammar so a single failing rule
 doesn't hide behind unrelated ones.
@@ -94,7 +93,7 @@ class TestVisibilityParserRejectsDirectionalOnlyTokens:
 
 
 class TestVisibilityParserRejectsRWYOnlyTokens:
-    """A lone direction-qualified variation token should not match on its own."""
+    """Runway visual range (RVR) groups are a different group, not prevailing visibility."""
 
     RWY_ONLY_TOKENS = [
         "R27/0900U",
@@ -111,7 +110,7 @@ class TestVisibilityParserRejectsRWYOnlyTokens:
 
     @pytest.mark.parametrize("token", RWY_ONLY_TOKENS)
     def test_rejects_rwy_only_tokens(self, parser, token):
-        """These only make sense combined with a preceding main visibility token."""
+        """`Rxx/...` tokens describe a single runway and are out of scope."""
         assert parser.matches(token) is False
 
 
@@ -132,6 +131,10 @@ class TestVisibilityParserRejectsNonVisibilityTokens:
         "SM",  # missing distance
         "1/2",  # fraction without SM suffix
         "ABCDSM",  # non-numeric
+        "1",  # bare whole number: first half of a split `1 1/2SM`
+        "11/2SM",  # mixed number without the separating space
+        "1/0SM",  # zero denominator
+        "PM1SM",  # two prefixes
         "",
     ]
 
@@ -202,3 +205,25 @@ class TestVisibilityParserParsesStatuteMilesLessThanPrefix:
     def test_parses_less_than_prefix(self, parser, token, expected):
         """`M` is a comparator qualifier not yet modeled; only the value is kept."""
         assert parser.parse(token) == expected
+
+
+class TestVisibilityParserParsesStatuteMilesMixedNumber:
+    """Parsing a mixed statute-mile number (`W N/DSM`), rejoined by `_dispatch()`."""
+
+    CASES = [
+        ("1 1/2SM", Visibility(distance=1.5, unit=VisibilityUnit.STATUTE_MILES)),
+        ("2 3/4SM", Visibility(distance=2.75, unit=VisibilityUnit.STATUTE_MILES)),
+    ]
+
+    @pytest.mark.parametrize("token, expected", CASES)
+    def test_parses_mixed_number(self, parser, token, expected):
+        """Whole part plus fraction, e.g. `1 1/2SM` -> 1.5."""
+        assert parser.parse(token) == expected
+
+
+class TestVisibilityParserParsesStatuteMilesMoreThanPrefix:
+    """The `P` prefix ("more than") parses to the plain numeric value."""
+
+    def test_parses_more_than_prefix(self, parser):
+        """`P6SM` (more than 6 SM) keeps only the value, like the `M` prefix."""
+        assert parser.parse("P6SM") == Visibility(distance=6.0, unit=VisibilityUnit.STATUTE_MILES)
