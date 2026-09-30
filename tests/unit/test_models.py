@@ -33,6 +33,7 @@ from metar_taf_parser.models import (
     Visibility,
     WeatherConditions,
     Wind,
+    WindVariation,
 )
 
 _SAMPLE_WIND = Wind(direction=240, speed=10, unit=WindUnit.KT)
@@ -51,6 +52,7 @@ _SAMPLE_TIME = datetime(2026, 8, 16, 12, 0)
 FROZEN_VALUE_OBJECTS = [
     (VerticalVisibility, {"height_ft": 300}),
     (Wind, {"direction": 240, "speed": 10, "unit": WindUnit.KT}),
+    (WindVariation, {"from_direction": 100, "to_direction": 180}),
     (DirectionalVisibility, {"distance": 5000, "direction": "NE"}),
     (Visibility, {"distance": 9999, "unit": VisibilityUnit.METERS}),
     (CloudLayer, {"amount": CloudAmount.FEW, "height_ft": 2000}),
@@ -100,7 +102,7 @@ FROZEN_VALUE_OBJECTS = [
 
 @pytest.mark.parametrize("cls, kwargs", FROZEN_VALUE_OBJECTS)
 class TestFrozenValueObjectContract:
-    """Contrato estructural compartido por las 13 clases de dominio."""
+    """Contrato estructural compartido por las 14 clases de dominio."""
 
     def test_constructs_with_given_values(self, cls, kwargs):
         """Cada kwarg pasado al constructor se refleja en el atributo."""

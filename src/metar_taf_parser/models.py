@@ -40,6 +40,18 @@ class Wind:
 
 
 @dataclass(frozen=True)
+class WindVariation:
+    """Variable wind direction range reported as its own group (e.g. 100V180).
+
+    It always follows a wind group; the report parser folds it into that
+    `Wind.variable_range`.
+    """
+
+    from_direction: int
+    to_direction: int
+
+
+@dataclass(frozen=True)
 class DirectionalVisibility:
     """Visibility reported toward a specific compass direction."""
 
