@@ -77,7 +77,7 @@ class TestTokenizerDropsRemarks:
 
     def test_discards_rmk_and_everything_after(self, tokenizer):
         """US-style remarks after `RMK` don't reach the parser."""
-        raw = "METAR KJFK 161151Z 24010KT 10SM FE132 T01830122"
+        raw = "METAR KJFK 161151Z 24010KT 10SM FEW250 18/12 A2992 RMK AO2 SLP132 T01830122"
         assert tokenizer.tokenize(raw) == [
             "METAR",
             "KJFK",
