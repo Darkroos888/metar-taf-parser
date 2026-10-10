@@ -3,4 +3,5 @@
   <component name="Black">
     <option name="sdkName" value="uv (metar-taf-parser)" />
   </component>
+  <component name="ProjectRootManager" version="2" project-jdk-name="uv (metar-taf-parser)" project-jdk-type="Python SDK" />
 </project>
