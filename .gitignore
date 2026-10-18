@@ -12,3 +12,4 @@ wheels/
 htmlcov/
 .coverage
 docs/_build/
+*.md
