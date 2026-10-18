@@ -16,6 +16,17 @@ def test_abstract_report_parser_cannot_be_instantiated():
         AbstractReportParser([])
 
 
+def test_subclass_must_implement_parse_header():
+    """`_parse_header()` es un hook abstracto: implementar solo `_assemble()` no basta."""
+
+    class OnlyAssemble(AbstractReportParser):
+        def _assemble(self, raw, header, results, reference):
+            return None
+
+    with pytest.raises(TypeError):
+        OnlyAssemble([])
+
+
 @pytest.mark.parametrize("parser_cls", REPORT_PARSERS)
 class TestReportParserContract:
     """Contrato compartido por MetarParser y TafParser."""

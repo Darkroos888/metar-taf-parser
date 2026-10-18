@@ -30,6 +30,12 @@ class TafParser(AbstractReportParser):
             ]
         )
 
-    def _assemble(self, raw: str, results: list[object], reference: datetime) -> Taf:
-        """Build a `Taf` from the dispatched results. Logic pending."""
+    def _parse_header(self, tokens: list[str], reference: datetime) -> tuple[object, list[str]]:
+        """Consume the TAF header (`TAF [AMD|COR] station DDHHMMZ DDHH/DDHH`). Logic pending."""
+        raise NotImplementedError
+
+    def _assemble(
+        self, raw: str, header: object, results: list[object], reference: datetime
+    ) -> Taf:
+        """Build a `Taf` from the header and the dispatched results. Logic pending."""
         raise NotImplementedError
